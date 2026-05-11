@@ -1,0 +1,52 @@
+Level 2 Advanced Gameplay Update
+================================
+
+This version rebuilds Level 2 as a higher-tech, more playable sky/mushroom stage inspired by the provided Mario reference video.
+
+Main Level-2 mechanisms added
+-----------------------------
+1. Longer World-1-3-style sky stage
+   - world_length = 4240, goal_x = 4110, countdown = 135 s.
+   - More high/low mushroom platforms, wider sky gaps, final staircase + flag/castle ending.
+
+2. Rideable moving platforms
+   - Platforms 18-23 move vertically/horizontally.
+   - Mario is carried by the platform when standing on it, avoiding the old "platform moves away under Mario" feel.
+
+3. Timed disappearing bridge
+   - Platforms 24-26 cycle visible-visible-hidden.
+   - Adds timing skill and gives the player a risky upper route.
+
+4. Falling platforms
+   - Platforms 27-28 shake briefly after Mario lands, then sink and reset.
+   - This creates a speed/timing challenge instead of a static map.
+
+5. Route branching
+   - Upper route: more coins, power block, fireballs, flying enemies.
+   - Lower route: crouch gates, big enemies, safer but less rewarding path.
+
+6. New enemy type
+   - tough == 3 is a winged/flying enemy. It moves in a readable flying pattern and is still stompable/shootable.
+
+7. Bonus reward logic
+   - If Mario reaches the upper-route section with >=16 coins, Level 2 gives +15 seconds, +1 life if possible, and score bonus.
+
+LCD black-screen stability fixes
+--------------------------------
+1. Fixed unsafe drawing path in game_2/MarioRender.c
+   - Replaced direct LCD_Draw_Rect calls with clipped FillRectColor / DrawRectOutlineColor helpers.
+   - Prevents negative world-screen coordinates from being converted into huge uint16_t values.
+
+2. Fixed unsafe UI rectangles in game_2/MarioUI.c
+   - UI fill/outline now use safe clipped pixel drawing.
+
+3. Fixed LCD_Set_Pixel in ST7789V2_Driver_STM32L4/Core/Src/LCD.c
+   - Bounds check now happens before track_changes[y] is written.
+   - Also corrected LCD_Get_Pixel indexing from x*y to ST7789V2_WIDTH*y + x.
+
+4. Corrected SCREEN_H in game_2/MarioConfig.h
+   - SCREEN_H changed from 280 to 240 to match ST7789V2_HEIGHT.
+
+Why the LCD could black-screen before
+-------------------------------------
+The most likely software reason was memory corruption from out-of-bounds LCD buffer access. Some objects near the left or right side of the screen had negative screen x values during scrolling. The old code sent these negative coordinates to LCD_Draw_Rect(), whose parameters are uint16_t. That can turn -3 into 65533, leading to invalid drawing loops and corrupted track_changes/image buffer state. The updated code clips all rectangles before drawing and protects LCD_Set_Pixel itself.

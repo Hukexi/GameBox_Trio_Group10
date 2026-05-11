@@ -1,0 +1,17 @@
+Level 2 completed based on the uploaded Mario reference video.
+
+Main changes:
+1. Rebuilt setup_level_2() in game_2/MarioLevel.c as a World-1-3 style platform stage.
+2. Added moving lift platforms for Level 2 in game_2/MarioGame.c.
+3. Added oscillating non-stompable fireball hazards using EnemyObject.tough == 2.
+4. Added Level-2 visual rendering: green mushroom caps, brown trunks, fireballs, and flag before castle.
+5. Kept Level 1 and Level 3 behavior unchanged except shared engine support for Level-2 hazards.
+
+Important files changed:
+- game_2/MarioLevel.c
+- game_2/MarioGame.c
+- game_2/MarioGame.h
+- game_2/MarioRender.c
+
+Build note:
+The old build folder was removed intentionally so STM32Cube/CMake will regenerate a clean build instead of using stale ELF/BIN files.
